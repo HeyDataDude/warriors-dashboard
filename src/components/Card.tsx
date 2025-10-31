@@ -2,10 +2,14 @@ import { ReactNode } from "react";
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div
-      className={`rounded-2xl bg-white/5 border border-white/10 shadow-soft p-4 backdrop-blur-xl transition hover:border-warriorsGold/30 ${className}`}
+    <section
+      className={`rounded-2xl bg-white/5 border border-white/10 shadow-soft backdrop-blur-xl ${className}`}
     >
       {children}
-    </div>
+    </section>
   );
+}
+
+export function SectionTitle({ children }: { children: ReactNode }) {
+  return <h2 className="text-xl font-semibold">{children}</h2>;
 }
