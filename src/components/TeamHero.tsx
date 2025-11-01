@@ -257,7 +257,7 @@ export default function TeamHero({ team }: { team?: Team }) {
                   className="inline-flex items-center justify-center h-[40px] px-3 rounded-lg font-semibold text-[13px]
                              bg-white/10 ring-1 ring-inset ring-white/15 transition hover:bg-white/15 focus:outline-none focus:ring-2"
                 >
-                  Schedule
+                  Recent Games
                 </a>
               </div>
             </div>

@@ -3,6 +3,8 @@ import { useEffect, useRef, useState, Suspense, lazy, useCallback } from "react"
 import ChampionshipBanners from "./ChampionshipBanners";
 import curryimg from "../assets/curry.png";
 import currycsv from "../assets/CSV-Data/curry.csv?url";
+import { createPortal } from "react-dom";
+
 
 const StephenCurryDashboard = lazy(() => import("../components/StephenCurryDashboard"));
 
@@ -230,79 +232,78 @@ export default function HeroShowcase({
       {/* Floating Action Button */}
       <button
         onClick={openStats}
-        className={[
-          "group absolute z-20 right-5 bottom-5 sm:right-7 sm:bottom-7",
-          "h-14 w-14 sm:h-[60px] sm:w-[60px] rounded-full",
-          "bg-[rgba(255,199,44,1)] text-[#0B0F1A] shadow-[0_14px_36px_rgba(253,185,39,0.35)]",
-          "ring-1 ring-[#FFE08A]/50 hover:shadow-[0_18px_44px_rgba(253,185,39,0.5)]",
-          "transition-transform hover:scale-[1.04] active:scale-[0.98] focus:outline-none focus:ring-2",
-          "flex items-center justify-center",
-        ].join(" ")}
+        className="group absolute z-20 right-5 bottom-5 sm:right-7 sm:bottom-7 h-14 w-14 sm:h-[60px] sm:w-[60px] rounded-full
+                   bg-[rgba(255,199,44,1)] text-[#0B0F1A] shadow-[0_14px_36px_rgba(253,185,39,0.35)]
+                   ring-1 ring-[#FFE08A]/50 hover:shadow-[0_18px_44px_rgba(253,185,39,0.5)]
+                   transition-transform hover:scale-[1.04] active:scale-[0.98] focus:outline-none focus:ring-2
+                   flex items-center justify-center"
         aria-label="Open Stephen Curry Advanced Stats"
         title="Open Stephen Curry Advanced Stats"
       >
         <span className="font-black text-[18px] leading-none">30</span>
       </button>
 
-      {/* Modal */}
-      {showStats && (
-        <div
-          className="fixed inset-0 z-[60] grid place-items-center bg-black/70 backdrop-blur-sm p-4 transition-opacity duration-300"
-          style={{ opacity: mountedAnim ? 1 : 0 }}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Stephen Curry Advanced Stats"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowStats(false); // backdrop click
-          }}
-          onWheel={(e) => e.stopPropagation()}
-          onTouchMove={(e) => e.stopPropagation()}
-        >
+      {/* === MODAL VIA PORTAL (fixes stacking issues on small screens) === */}
+      {showStats &&
+        createPortal(
           <div
-            className={[
-              "relative w-[min(1100px,100%)] max-h-[calc(100vh-2rem)] overflow-auto rounded-2xl",
-              "border border-white/12 bg-warriorsBg shadow-2xl",
-              "transition-transform duration-300",
-            ].join(" ")}
-            style={{
-              transform: mountedAnim ? "translateY(0) scale(1)" : "translateY(10px) scale(0.97)",
+            className="fixed inset-0 z-[999999] grid place-items-center 
+                       bg-black/55 backdrop-blur-md p-4 transition-opacity duration-300"
+            style={{ opacity: mountedAnim ? 1 : 0 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Stephen Curry Advanced Stats"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowStats(false); // backdrop
             }}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
           >
-            {/* header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 sticky top-0 bg-warriorsBg/95 backdrop-blur supports-[backdrop-filter]:bg-warriorsBg/80">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-[#FFC72C] text-[#0B0F1A] grid place-items-center font-black">30</div>
-                <div className="leading-tight">
-                  <div className="font-semibold">Stephen Curry</div>
-                  <div className="text-xs text-white/60">Golden State Warriors</div>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowStats(false)}
-                className="rounded-lg p-2 hover:bg-white/10 focus:outline-none focus:ring-2"
-                aria-label="Close"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
-
-            {/* body */}
-            <div className="p-4 md:p-6">
-              <Suspense
-                fallback={
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center">
-                    Loading advanced stats…
+            <div
+              className="relative w-[min(1100px,100%)] max-h-[calc(100vh-2rem)] overflow-auto
+                         rounded-2xl border border-white/12 bg-warriorsBg shadow-2xl
+                         transition-transform duration-300"
+              style={{
+                transform: mountedAnim ? "translateY(0) scale(1)" : "translateY(10px) scale(0.97)",
+              }}
+            >
+              {/* sticky header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 sticky top-0
+                              bg-warriorsBg/95 backdrop-blur supports-[backdrop-filter]:bg-warriorsBg/80 z-10">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-[#FFC72C] text-[#0B0F1A] grid place-items-center font-black">30</div>
+                  <div className="leading-tight">
+                    <div className="font-semibold">Stephen Curry — Advanced Dashboard</div>
+                    <div className="text-xs text-white/60">Golden State Warriors</div>
                   </div>
-                }
-              >
-                <StephenCurryDashboard csvUrl={currycsv} portraitUrl={curryimg} />
-              </Suspense>
+                </div>
+                <button
+                  onClick={() => setShowStats(false)}
+                  className="rounded-lg p-2 hover:bg-white/10 focus:outline-none focus:ring-2"
+                  aria-label="Close"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* body */}
+              <div className="p-4 md:p-6">
+                <Suspense
+                  fallback={
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center">
+                      Loading advanced stats…
+                    </div>
+                  }
+                >
+                  <StephenCurryDashboard csvUrl={currycsv} portraitUrl={curryimg} />
+                </Suspense>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </section>
   );
 }
