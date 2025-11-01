@@ -21,6 +21,8 @@ export interface Player {
   dateBorn?: string;
   strThumb?: string;
   strDescriptionEN?: string;
+  strNumber?: string;
+  strNationality?: string;
 }
 
 export interface Event {

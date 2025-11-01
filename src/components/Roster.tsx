@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
-import { Card, SectionTitle } from "./Card";
+// src/components/Roster.tsx
+import { useEffect, useMemo, useState } from "react";
+import Card, { SectionTitle } from "./Card";
 import { Player } from "../types";
 import PlayerCard from "./PlayerCard";
 import { Skeleton } from "./Skeleton";
 import { Modal } from "./Modal";
 
+/* ----------------- Skeleton ----------------- */
 export function RosterSkeleton() {
   return (
     <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -21,112 +23,314 @@ export function RosterSkeleton() {
   );
 }
 
+/* ----------------- Helpers ----------------- */
+const W_BLUE = "#1D428A";
+const W_GOLD = "#FFC72C";
+
+function Chip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center px-3 py-1.5 rounded-lg text-[12.5px] font-medium transition focus:outline-none focus:ring-2
+        ${active
+          ? "bg-white/15 ring-1 ring-inset ring-white/20 text-white"
+          : "bg-white/5 ring-1 ring-inset ring-white/10 text-white/85 hover:bg-white/10"}`}
+      title={label}
+    >
+      {label}
+    </button>
+  );
+}
+
+function SearchInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div className="relative w-full sm:max-w-xs">
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full pl-8 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 outline-none focus:ring-2 ring-[rgba(255,199,44,0.4)] text-sm placeholder-white/40 transition"
+        aria-label="Search players"
+        type="search"
+      />
+      <svg
+        viewBox="0 0 20 20"
+        className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/50 pointer-events-none"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
+        <circle cx="8.5" cy="8.5" r="5.5" />
+        <line x1="13" y1="13" x2="17" y2="17" />
+      </svg>
+    </div>
+  );
+}
+
+function Select({
+  value,
+  onChange,
+  options,
+  "aria-label": ariaLabel,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  "aria-label"?: string;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none text-sm"
+      aria-label={ariaLabel || "Select"}
+    >
+      {options.map((o) => (
+        <option key={o} value={o}>
+          {o}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+/* ----------------- Main ----------------- */
+
 type Props = { players?: Player[] };
 
 export default function Roster({ players = [] }: Props) {
   const [q, setQ] = useState("");
   const [pos, setPos] = useState("All");
+  const [sort, setSort] = useState<"Name A–Z" | "Jersey #" | "Position">("Name A–Z");
   const [active, setActive] = useState<Player | null>(null);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
+  // Reduced motion
+  useEffect(() => {
+    const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    const set = () => setReducedMotion(!!mq?.matches);
+    set(); mq?.addEventListener?.("change", set);
+    return () => mq?.removeEventListener?.("change", set);
+  }, []);
+
+  // Positions list
   const positions = useMemo(() => {
-    const set = new Set(players.map(p => p.strPosition || "Unknown"));
-    return ["All", ...Array.from(set)];
+    const set = new Set((players || []).map((p) => p.strPosition || "Unknown"));
+    return ["All", ...Array.from(set).sort()];
   }, [players]);
 
-  const qLower = q.toLowerCase();
-  const filtered = players
-    .filter(p => (p.strPlayer ?? "").toLowerCase().includes(qLower))
-    .filter(p => (pos === "All" ? true : (p.strPosition || "Unknown") === pos));
+  // Debounce search
+  const [qLive, setQLive] = useState(q);
+  useEffect(() => {
+    const t = setTimeout(() => setQ(qLive), 150);
+    return () => clearTimeout(t);
+  }, [qLive]);
+
+  // Filter + sort
+  const filtered = useMemo(() => {
+    const qLower = (q || "").toLowerCase();
+    let list = players.filter((p) =>
+      (p.strPlayer ?? "").toLowerCase().includes(qLower)
+    );
+    if (pos !== "All") list = list.filter((p) => (p.strPosition || "Unknown") === pos);
+
+    const byNum = (p?: string | null) => {
+      const n = parseInt(String(p ?? "").replace(/[^\d]/g, ""), 10);
+      return Number.isFinite(n) ? n : 9999;
+    };
+    const byPos = (s?: string | null) => (s || "Unknown");
+
+    switch (sort) {
+      case "Jersey #":
+        list.sort((a, b) => byNum(a.strNumber) - byNum(b.strNumber));
+        break;
+      case "Position":
+        list.sort(
+          (a, b) =>
+            byPos(a.strPosition).localeCompare(byPos(b.strPosition)) ||
+            (a.strPlayer || "").localeCompare(b.strPlayer || "")
+        );
+        break;
+      default:
+        list.sort((a, b) => (a.strPlayer || "").localeCompare(b.strPlayer || ""));
+    }
+    return list;
+  }, [players, q, pos, sort]);
+
+  const jersey = (active?.strNumber ?? "").toString().replace(/[^\d]/g, "");
+  const initials = (active?.strPlayer ?? "")
+    .split(" ")
+    .map((s) => s[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
-    <div id="roster">
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <SectionTitle>Roster</SectionTitle>
+    <div id="roster" className="scroll-mt-24">
+      <Card className="p-4 sm:p-5 md:p-6 ring-1 ring-white/10 bg-gradient-to-b from-white/5 to-transparent">
+        {/* Header */}
+        <div className="flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <SectionTitle>Roster</SectionTitle>
+            <p className="text-white/70 text-xs md:text-[13px] mt-0.5">
+              Player directory and filters
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-4">
-          <input
-            type="text"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search players…"
-            className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none focus:ring-2 ring-warriorsGold/50"
-          />
-          <select
-            value={pos}
-            onChange={(e) => setPos(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none"
-          >
-            {positions.map(p => (
-              <option key={p} value={p}>{p}</option>
+        {/* Controls */}
+        <div className="mt-4 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+          <div className="flex items-center gap-2">
+            <SearchInput value={qLive} onChange={setQLive} placeholder="Search players…" />
+            <Select
+              value={sort}
+              onChange={(v) => setSort(v as any)}
+              options={["Name A–Z", "Jersey #", "Position"]}
+              aria-label="Sort roster"
+            />
+          </div>
+
+          {/* Position chips */}
+          <div className="flex flex-wrap items-center gap-2">
+            {positions.map((p) => (
+              <Chip key={p} label={p} active={pos === p} onClick={() => setPos(p)} />
             ))}
-          </select>
+            {(pos !== "All" || q) && (
+              <button
+                type="button"
+                onClick={() => { setPos("All"); setQLive(""); }}
+                className="ml-1 inline-flex items-center px-3 py-1.5 rounded-lg text-[12.5px] font-medium bg-white/5 ring-1 ring-inset ring-white/10 hover:bg-white/10 transition focus:outline-none focus:ring-2"
+                title="Clear filters"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </div>
 
-        <ul className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-          {filtered.map(p => (
+        {/* Grid (mobile shows 1 card per row) */}
+        <ul
+          className="mt-4 grid gap-4 sm:gap-5 lg:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+          role="list"
+        >
+          {filtered.map((p) => (
             <li key={p.idPlayer}>
-              {/* Click to open modal */}
               <button
                 type="button"
                 onClick={() => setActive(p)}
-                className="w-full text-left"
+                className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-xl"
+                title={`View ${p.strPlayer}`}
               >
-                <li key={p.idPlayer} onClick={() => setActive(p)} className="cursor-pointer">
-  <PlayerCard p={p} />
-</li>
-
+                <PlayerCard p={p} />
               </button>
             </li>
           ))}
         </ul>
 
+        {/* Empty state */}
         {filtered.length === 0 && (
-          <div className="p-6 text-center text-white/60">
-            No players match your filters.
+          <div className="p-8 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 ring-1 ring-inset ring-white/10">
+              <svg viewBox="0 0 24 24" className="h-4.5 w-4.5 text-white/70" fill="currentColor">
+                <path d="M12 2a5 5 0 0 1 5 5v2h1a3 3 0 0 1 3 3v7h-6v-5H9v5H3v-7a3 3 0 0 1 3-3h1V7a5 5 0 0 1 5-5z" />
+              </svg>
+              <span className="text-sm text-white/70">No players match your filters.</span>
+            </div>
           </div>
         )}
       </Card>
 
-      {/* ⬇️ Modal moved INSIDE the return ⬇️ */}
-      <Modal open={!!active} onClose={() => setActive(null)}>
+      {/* Modal */}
+      <Modal
+        open={!!active}
+        onClose={() => setActive(null)}
+        title={active?.strPlayer}
+        size="lg"
+        watermark={jersey || initials}
+      >
         {active && (
-          <div className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="h-20 w-20 bg-white/5 rounded-xl overflow-hidden">
+          <div className="p-4 sm:p-5 md:p-6">
+            <div className="flex items-start gap-4">
+              <div className="h-20 w-20 bg-white/5 rounded-xl overflow-hidden ring-1 ring-inset ring-white/10 shrink-0">
                 {active.strThumb ? (
-                  <img src={active.strThumb} alt={active.strPlayer} className="w-full h-full object-cover" />
+                  <img
+                    src={active.strThumb}
+                    alt={active.strPlayer}
+                    className="w-full h-full object-cover"
+                    draggable={false}
+                  />
                 ) : null}
               </div>
-              <div className="min-w-0">
-                <div className="text-xl font-semibold truncate">{active.strPlayer}</div>
-                <div className="text-textMuted text-sm">{active.strPosition || "—"}</div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-semibold truncate">{active.strPlayer}</h3>
+                  {active.strNumber && (
+                    <span
+                      className="inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-semibold"
+                      style={{
+                        backgroundColor: "rgba(255,199,44,0.15)",
+                        color: W_GOLD,
+                        border: "1px solid rgba(255,199,44,0.25)",
+                      }}
+                    >
+                      #{String(active.strNumber).replace(/[^\d]/g, "")}
+                    </span>
+                  )}
+                </div>
+                <div className="text-white/70 text-sm">
+                  {active.strPosition || "—"}
+                  {active.strNationality ? ` • ${active.strNationality}` : ""}
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 text-sm mt-4">
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
+                    <div className="text-white/60">Height</div>
+                    <div className="font-medium">{active.strHeight || "—"}</div>
+                  </div>
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
+                    <div className="text-white/60">Weight</div>
+                    <div className="font-medium">{active.strWeight || "—"}</div>
+                  </div>
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
+                    <div className="text-white/60">Born</div>
+                    <div className="font-medium">{active.dateBorn || "—"}</div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3 text-sm mt-4">
-              <div className="rounded-xl bg-white/5 p-3 border border-white/10">
-                <div className="text-textMuted">Height</div>
-                <div className="font-medium">{active.strHeight || "—"}</div>
-              </div>
-              <div className="rounded-xl bg-white/5 p-3 border border-white/10">
-                <div className="text-textMuted">Weight</div>
-                <div className="font-medium">{active.strWeight || "—"}</div>
-              </div>
-              <div className="rounded-xl bg-white/5 p-3 border border-white/10">
-                <div className="text-textMuted">Born</div>
-                <div className="font-medium">{active.dateBorn || "—"}</div>
-              </div>
-            </div>
+
             {active.strDescriptionEN && (
-              <p className="text-sm text-white/80 mt-4 leading-relaxed line-clamp-6">
+              <p className="text-sm text-white/85 mt-4 leading-relaxed max-h-56 overflow-y-auto pr-1">
                 {active.strDescriptionEN}
               </p>
             )}
-            <div className="mt-4 flex justify-end">
+
+            <div className="mt-5 flex justify-end">
               <button
                 onClick={() => setActive(null)}
-                className="px-4 py-2 rounded-lg bg-warriorsGold text-warriorsBg hover:opacity-90 transition"
+                className="px-4 py-2 rounded-lg font-semibold transition focus:outline-none focus:ring-2"
+                style={{ backgroundColor: W_GOLD, color: W_BLUE }}
               >
                 Close
               </button>
@@ -137,3 +341,4 @@ export default function Roster({ players = [] }: Props) {
     </div>
   );
 }
+    

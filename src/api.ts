@@ -20,22 +20,12 @@ export async function safeFetch<T>(
     }
 }
 
-// ---- TEAM INFO ----
-export async function getTeam(): Promise<Team> {
-    try {
-        const { data } = await axios.get(`${BASE_URL}/lookupteam.php`, {
-            params: { id: TEAM_ID },
-        });
-        if (data?.teams && data.teams.length > 0) return data.teams[0];
-        throw new Error("No team data found");
-    } catch (error) {
-        console.error("Failed to fetch team:", error);
-        return {} as Team;
-    }
-}
+
 
 // ---- PLAYERS ----
 export async function getPlayers(): Promise<Player[]> {
+     const url = `${BASE_URL}/lookup_all_players.php?id=${TEAM_ID}`;
+  console.log("[getPlayers] →", url);
     try {
         const { data } = await axios.get(`${BASE_URL}/lookup_all_players.php`, {
             params: { id: TEAM_ID },
@@ -49,6 +39,8 @@ export async function getPlayers(): Promise<Player[]> {
 
 // ---- RECENT GAMES ----
 export async function getRecentEvents(): Promise<Event[]> {
+    const url = `${BASE_URL}/eventslast.php?id=${TEAM_ID}`;
+  console.log("[getRecentEvents] →", url);
     try {
         const { data } = await axios.get(`${BASE_URL}/eventslast.php`, {
             params: { id: TEAM_ID },
