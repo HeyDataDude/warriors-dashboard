@@ -63,7 +63,7 @@ export default function App() {
             imageUrl={heroImage}
             kicker="2025 Season"
             title="Relentless. Resilient. Warriors."
-            subtitle="Live momentum, roster intelligence, and game insights—beautifully presented."
+            subtitle="Strength in Numbers"
             ctaPrimary={{ label: "View Recent Games", href: "#games" }}
             ctaSecondary={{ label: "Browse Roster", href: "#roster" }}
             // roundedBottom={false} // uncomment for a straight bottom edge

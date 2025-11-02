@@ -156,18 +156,25 @@ export function Modal({
         </button>
 
         {/* Content */}
-        <div className="p-4 sm:p-5 md:p-6">
-          {title && (
-            <h2
-              id="modal-title"
-              className="mb-2 tracking-tight"
-              style={{ fontFamily: "Bebas Neue, Montserrat, sans-serif", fontSize: 26, letterSpacing: 0.3, lineHeight: 1.05 }}
-            >
-              {title}
-            </h2>
-          )}
-          {children}
-        </div>
+        <div
+  className="p-4 sm:p-5 md:p-6 max-h-[calc(100vh-6rem)] overflow-y-auto"
+>
+  {title && (
+    <h2
+      id="modal-title"
+      className="mb-2 tracking-tight"
+      style={{
+        fontFamily: "Bebas Neue, Montserrat, sans-serif",
+        fontSize: 26,
+        letterSpacing: 0.3,
+        lineHeight: 1.05,
+      }}
+    >
+      {title}
+    </h2>
+  )}
+  {children}
+</div>
       </div>
     </div>
   );

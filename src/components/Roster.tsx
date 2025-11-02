@@ -265,80 +265,94 @@ export default function Roster({ players = [] }: Props) {
         open={!!active}
         onClose={() => setActive(null)}
         title={active?.strPlayer}
-        size="lg"
+        size="xl"
         watermark={jersey || initials}
       >
-        {active && (
-          <div className="p-4 sm:p-5 md:p-6">
-            <div className="flex items-start gap-4">
-              <div className="h-20 w-20 bg-white/5 rounded-xl overflow-hidden ring-1 ring-inset ring-white/10 shrink-0">
-                {active.strThumb ? (
-                  <img
-                    src={active.strThumb}
-                    alt={active.strPlayer}
-                    className="w-full h-full object-cover"
-                    draggable={false}
-                  />
-                ) : null}
-              </div>
+{active && (
+  <div className="p-4 sm:p-5 md:p-6">
+    {/* Media + meta grid */}
+    <div className="grid grid-cols-1 sm:grid-cols-[auto,1fr] gap-4 sm:gap-6 items-start">
+      {/* Bigger image: full-width on mobile, fixed rail on desktop */}
+      <div className="sm:sticky sm:top-6">
+        <div className="relative w-full sm:w-52 md:w-56 aspect-[4/5] rounded-2xl overflow-hidden bg-white/5 ring-1 ring-inset ring-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.35)] mx-auto sm:mx-0">
+          {active.strThumb ? (
+            <img
+              src={active.strThumb}
+              alt={active.strPlayer}
+              className="absolute inset-0 h-full w-full object-cover"
+              draggable={false}
+            />
+          ) : null}
 
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-xl font-semibold truncate">{active.strPlayer}</h3>
-                  {active.strNumber && (
-                    <span
-                      className="inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-semibold"
-                      style={{
-                        backgroundColor: "rgba(255,199,44,0.15)",
-                        color: W_GOLD,
-                        border: "1px solid rgba(255,199,44,0.25)",
-                      }}
-                    >
-                      #{String(active.strNumber).replace(/[^\d]/g, "")}
-                    </span>
-                  )}
-                </div>
-                <div className="text-white/70 text-sm">
-                  {active.strPosition || "—"}
-                  {active.strNationality ? ` • ${active.strNationality}` : ""}
-                </div>
+          {/* subtle bottom gradient for legibility if needed */}
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/35 to-transparent pointer-events-none" />
+        </div>
+      </div>
 
-                <div className="grid grid-cols-3 gap-3 text-sm mt-4">
-                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
-                    <div className="text-white/60">Height</div>
-                    <div className="font-medium">{active.strHeight || "—"}</div>
-                  </div>
-                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
-                    <div className="text-white/60">Weight</div>
-                    <div className="font-medium">{active.strWeight || "—"}</div>
-                  </div>
-                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
-                    <div className="text-white/60">Born</div>
-                    <div className="font-medium">{active.dateBorn || "—"}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* Right column: perfectly aligned text + chips */}
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-2xl md:text-[26px] font-semibold leading-tight truncate">
+            {active.strPlayer}
+          </h3>
 
-            {active.strDescriptionEN && (
-              <p className="text-sm text-white/85 mt-4 leading-relaxed max-h-56 overflow-y-auto pr-1">
-                {active.strDescriptionEN}
-              </p>
-            )}
+          {active.strNumber && (
+            <span
+              className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[12.5px] font-semibold"
+              style={{
+                backgroundColor: "rgba(255,199,44,0.15)",
+                color: W_GOLD,
+                border: "1px solid rgba(255,199,44,0.25)",
+              }}
+            >
+              #{String(active.strNumber).replace(/[^\d]/g, "")}
+            </span>
+          )}
+        </div>
 
-            <div className="mt-5 flex justify-end">
-              <button
-                onClick={() => setActive(null)}
-                className="px-4 py-2 rounded-lg font-semibold transition focus:outline-none focus:ring-2"
-                style={{ backgroundColor: W_GOLD, color: W_BLUE }}
-              >
-                Close
-              </button>
-            </div>
+        <div className="mt-1 text-white/70 text-sm">
+          {(active.strPosition || "—")}
+          {active.strNationality ? ` • ${active.strNationality}` : ""}
+        </div>
+
+        {/* Key facts – stack on mobile, 3-up at sm+ */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mt-4">
+          <div className="rounded-xl bg-white/5 p-3 border border-white/10 text-center sm:text-left">
+            <div className="text-white/60">Height</div>
+            <div className="font-medium tabular-nums">{active.strHeight || "—"}</div>
           </div>
+          <div className="rounded-xl bg-white/5 p-3 border border-white/10 text-center sm:text-left">
+            <div className="text-white/60">Weight</div>
+            <div className="font-medium tabular-nums">{active.strWeight || "—"}</div>
+          </div>
+          <div className="rounded-xl bg-white/5 p-3 border border-white/10 text-center sm:text-left">
+            <div className="text-white/60">Born</div>
+            <div className="font-medium tabular-nums">{active.dateBorn || "—"}</div>
+          </div>
+        </div>
+
+        {/* Bio */}
+        {active.strDescriptionEN && (
+          <p className="text-sm text-white/85 mt-4 leading-relaxed max-h-56 overflow-y-auto pr-1">
+            {active.strDescriptionEN}
+          </p>
         )}
+
+        {/* Actions aligned to the end */}
+        <div className="mt-5 flex justify-end">
+          <button
+            onClick={() => setActive(null)}
+            className="px-4 py-2 rounded-lg font-semibold transition focus:outline-none focus:ring-2"
+            style={{ backgroundColor: W_GOLD, color: "#1D428A" }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
       </Modal>
     </div>
   );
 }
-    
