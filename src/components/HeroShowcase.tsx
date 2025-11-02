@@ -273,8 +273,7 @@ export default function HeroShowcase({
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-full bg-[#FFC72C] text-[#0B0F1A] grid place-items-center font-black">30</div>
                   <div className="leading-tight">
-                    <div className="font-semibold">Stephen Curry — Advanced Dashboard</div>
-                    <div className="text-xs text-white/60">Golden State Warriors</div>
+                    <div className="font-semibold">Stephen Curry </div>
                   </div>
                 </div>
                 <button
