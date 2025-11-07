@@ -92,8 +92,6 @@ export default function StephenCurryDashboard({
     const set = new Set(rows.map((r) => r.Season_year));
     return ["All", ...Array.from(set).sort()];
   }, [rows]);
-
-  // Removed “All / Regular” — only show real season divisions
  
 
   const filtered = useMemo(
