@@ -86,7 +86,7 @@ export function Modal({
     <div className="fixed inset-0 z-[100] grid place-items-center p-4" aria-hidden={false}>
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 z-10 bg-black/60 backdrop-blur-sm transition-opacity ${
+        className={`absolute inset-0 z-10 bg-black/50 backdrop-blur-sm transition-opacity ${
           open ? "opacity-100" : "opacity-0"
         }`}
         style={{ transitionDuration: prefersReducedMotion ? "0ms" : "180ms" }}

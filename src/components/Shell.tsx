@@ -131,7 +131,7 @@ export default function Shell({
     </a>
   );
 
-  const HEADER_OFFSET_PX = 76;
+  const HEADER_OFFSET_PX = 84;
 
   function smoothScrollToHash(hash: string) {
     const id = hash.replace(/^#/, "");
@@ -225,7 +225,7 @@ export default function Shell({
             {/* Brand */}
             <div className="flex items-center gap-3 md:gap-4">
               <div
-                className="h-12 w-12 md:h-[54px] md:w-[54px] rounded-2xl grid place-items-center ring-1 ring-inset ring-white/10 shadow"
+                className="h-14 w-14 md:h-[54px] md:w-[54px] rounded-2xl grid place-items-center ring-1 ring-inset ring-white/10 shadow"
                 style={{ backgroundColor: W_GOLD, color: W_BLUE }}
                 aria-label="GSW mark"
               >
