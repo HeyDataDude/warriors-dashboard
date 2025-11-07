@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
-import logo from "../assets/warriors-logo.png";
+import logo from "../assets/warriors-logo1.png";
 
 type ShellProps = {
   children: ReactNode;
