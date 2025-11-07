@@ -1,4 +1,3 @@
-// src/components/TeamHero.tsx
 import { useEffect, useRef, useState } from "react";
 import Card from "./Card";
 import { Team } from "../types";

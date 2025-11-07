@@ -1,4 +1,3 @@
-// src/components/Roster.tsx
 import { useEffect, useMemo, useState } from "react";
 import Card, { SectionTitle } from "./Card";
 import { Player } from "../types";
