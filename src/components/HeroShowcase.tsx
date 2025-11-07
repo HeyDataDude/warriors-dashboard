@@ -1,10 +1,8 @@
-// src/components/HeroShowcase.tsx
 import { useEffect, useRef, useState, Suspense, lazy, useCallback } from "react";
+import { createPortal } from "react-dom";
 import ChampionshipBanners from "./ChampionshipBanners";
 import curryimg from "../assets/curry.png";
 import currycsv from "../assets/CSV-Data/curry.csv?url";
-import { createPortal } from "react-dom";
-
 
 const StephenCurryDashboard = lazy(() => import("../components/StephenCurryDashboard"));
 
@@ -18,6 +16,8 @@ type Props = {
   roundedBottom?: boolean;
 };
 
+const W_GOLD = "#FFC72C";
+
 export default function HeroShowcase({
   imageUrl,
   kicker,
@@ -28,27 +28,31 @@ export default function HeroShowcase({
   roundedBottom = true,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Motion & view state
   const [reducedMotion, setReducedMotion] = useState(false);
   const [parallax, setParallax] = useState(0);
   const [showStats, setShowStats] = useState(false);
-  const [mountedAnim, setMountedAnim] = useState(false); // for modal entry animation
+  const [mountedAnim, setMountedAnim] = useState(false); // modal entry animation
 
-  // Reduced motion
+  /* Respect user “Reduced Motion” preference */
   useEffect(() => {
-    const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    const set = () => setReducedMotion(!!mq?.matches);
-    set();
-    mq?.addEventListener?.("change", set);
-    return () => mq?.removeEventListener?.("change", set);
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReducedMotion(!!mq.matches);
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
   }, []);
 
-  // Parallax
+  /* Parallax transform on scroll (skips when reduced motion is on) */
   useEffect(() => {
     if (reducedMotion) return;
     const el = containerRef.current;
     if (!el) return;
+
     let raf = 0;
-    const onScroll = () => {
+    const onScrollOrResize = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         const rect = el.getBoundingClientRect();
@@ -58,33 +62,34 @@ export default function HeroShowcase({
         raf = 0;
       });
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+
+    onScrollOrResize();
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [reducedMotion]);
 
-  // Scroll lock + ESC
+  /* Modal: lock page scroll, ESC to close, and stage entry animation */
   useEffect(() => {
     if (!showStats) return;
+
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setShowStats(false);
     window.addEventListener("keydown", onKey);
 
     const body = document.body;
     const html = document.documentElement;
     const hasScrollbar = window.innerWidth > html.clientWidth;
-    const scrollbar = hasScrollbar ? window.innerWidth - html.clientWidth : 0;
+    const scrollPad = hasScrollbar ? window.innerWidth - html.clientWidth : 0;
 
     const prevOverflow = body.style.overflow;
     const prevPadRight = body.style.paddingRight;
     body.style.overflow = "hidden";
-    if (scrollbar) body.style.paddingRight = `${scrollbar}px`;
+    if (scrollPad) body.style.paddingRight = `${scrollPad}px`;
 
-    // kick in content animation after mount
     const t = requestAnimationFrame(() => setMountedAnim(true));
 
     return () => {
@@ -96,14 +101,13 @@ export default function HeroShowcase({
     };
   }, [showStats]);
 
-  // Smooth scroll to top then open modal
+  /* Smooth-scroll to top, then open modal */
   const openStats = useCallback(() => {
     const start = window.scrollY || window.pageYOffset;
     if (start <= 4) {
       setShowStats(true);
       return;
     }
-    // Smooth behavior; also a fallback that resolves when we reach near top
     window.scrollTo({ top: 0, behavior: "smooth" });
     let raf = 0;
     const check = () => {
@@ -114,14 +118,12 @@ export default function HeroShowcase({
       }
     };
     raf = requestAnimationFrame(check);
-    // Safety timeout in case the browser blocks rAF
+    // Safety: ensure modal opens if rAF is throttled
     setTimeout(() => {
       cancelAnimationFrame(raf);
-      if (!showStats) setShowStats(true);
+      setShowStats(true);
     }, 900);
-  }, [showStats]);
-
-  const W_GOLD = "#FFC72C";
+  }, []);
 
   return (
     <section
@@ -137,7 +139,7 @@ export default function HeroShowcase({
       ].join(" ")}
       style={{ scrollMarginTop: "80px" }}
     >
-      {/* Background */}
+      {/* Background image with parallax transform (decorative) */}
       <div
         className="absolute inset-0"
         style={{
@@ -159,17 +161,21 @@ export default function HeroShowcase({
         />
       </div>
 
-      {/* Overlays */}
+      {/* Texture + vignette overlays (decorative only) */}
       <div
         className="absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none"
-        aria-hidden
+        aria-hidden="true"
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(9,16,26,0.92)] via-[rgba(9,16,26,0.35)] to-transparent" />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-[rgba(9,16,26,0.92)] via-[rgba(9,16,26,0.35)] to-transparent"
+        aria-hidden="true"
+      />
 
+      {/* Championship banners (purely visual flourish) */}
       <ChampionshipBanners
         items={[
           { year: 1947, note: "BAA" },
@@ -188,7 +194,7 @@ export default function HeroShowcase({
         intensity={1}
       />
 
-      {/* Content card */}
+      {/* Text card */}
       <div className="relative z-10 pb-6 sm:pb-8 md:pb-10">
         <div className="mx-auto max-w-7xl px-5">
           <div
@@ -200,7 +206,11 @@ export default function HeroShowcase({
           >
             {kicker && (
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/10 ring-1 ring-inset ring-white/15 text-[11.5px] text-white/85 mb-2">
-                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: W_GOLD }} aria-hidden />
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ backgroundColor: W_GOLD }}
+                  aria-hidden="true"
+                />
                 {kicker}
               </div>
             )}
@@ -223,14 +233,15 @@ export default function HeroShowcase({
             <div
               className="mt-5 h-[3px] w-24 rounded-full"
               style={{ background: `linear-gradient(90deg, ${W_GOLD}, transparent)` }}
-              aria-hidden
+              aria-hidden="true"
             />
           )}
         </div>
       </div>
 
-      {/* Floating Action Button */}
+      {/* FAB: opens Curry modal */}
       <button
+        type="button"
         onClick={openStats}
         className="group absolute z-20 right-5 bottom-5 sm:right-7 sm:bottom-7 h-14 w-14 sm:h-[60px] sm:w-[60px] rounded-full
                    bg-[rgba(255,199,44,1)] text-[#0B0F1A] shadow-[0_14px_36px_rgba(253,185,39,0.35)]
@@ -243,7 +254,7 @@ export default function HeroShowcase({
         <span className="font-black text-[18px] leading-none">30</span>
       </button>
 
-      {/* === MODAL VIA PORTAL (fixes stacking issues on small screens) === */}
+      {/* Modal rendered via portal to avoid stacking/overflow issues */}
       {showStats &&
         createPortal(
           <div
@@ -254,7 +265,7 @@ export default function HeroShowcase({
             aria-modal="true"
             aria-label="Stephen Curry Advanced Stats"
             onClick={(e) => {
-              if (e.target === e.currentTarget) setShowStats(false); // backdrop
+              if (e.target === e.currentTarget) setShowStats(false); // backdrop close
             }}
             onWheel={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
@@ -267,27 +278,32 @@ export default function HeroShowcase({
                 transform: mountedAnim ? "translateY(0) scale(1)" : "translateY(10px) scale(0.97)",
               }}
             >
-              {/* sticky header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 sticky top-0
-                              bg-warriorsBg/95 backdrop-blur supports-[backdrop-filter]:bg-warriorsBg/80 z-10">
+              {/* Sticky modal header with close */}
+              <div
+                className="flex items-center justify-between px-4 py-3 border-b border-white/10 sticky top-0
+                           bg-warriorsBg/95 backdrop-blur supports-[backdrop-filter]:bg-warriorsBg/80 z-10"
+              >
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-[#FFC72C] text-[#0B0F1A] grid place-items-center font-black">30</div>
+                  <div className="h-8 w-8 rounded-full bg-[#FFC72C] text-[#0B0F1A] grid place-items-center font-black">
+                    30
+                  </div>
                   <div className="leading-tight">
-                    <div className="font-semibold">Stephen Curry </div>
+                    <div className="font-semibold">Stephen Curry</div>
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setShowStats(false)}
                   className="rounded-lg p-2 hover:bg-white/10 focus:outline-none focus:ring-2"
                   aria-label="Close"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                   </svg>
                 </button>
               </div>
 
-              {/* body */}
+              {/* Modal body: lazily loaded Curry dashboard */}
               <div className="p-4 md:p-6">
                 <Suspense
                   fallback={
