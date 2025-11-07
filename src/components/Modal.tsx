@@ -18,7 +18,6 @@ type ModalProps = {
   size?: "sm" | "md" | "lg" | "xl";
   closeOnBackdrop?: boolean;
   initialFocusRef?: React.RefObject<HTMLElement>;
-  /** Optional watermark (e.g., jersey #) on backdrop */
   watermark?: string | number;
 };
 
