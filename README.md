@@ -18,7 +18,7 @@ A fast, responsive dashboard for Warriors fans. It pulls real team/player data f
 
         Type-safe: strict TypeScript types for API models.
 
-        Error handling: graceful fallbacks and skeleton states.
+        Error handling: fallbacks and skeleton states.
 
 🧱 Tech Stack
 
