@@ -39,7 +39,7 @@ export default function StephenCurryDashboard({
   const [rows, setRows] = useState<CurryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
-  const [seasonDiv, setSeasonDiv] = useState<string>("");
+
   const [seasonYear, setSeasonYear] = useState<string>("All");
   const [reducedMotion, setReducedMotion] = useState(false);
 
@@ -99,11 +99,10 @@ export default function StephenCurryDashboard({
   const filtered = useMemo(
     () =>
       rows.filter((r) => {
-        const okDiv = !seasonDiv || r.Season_div === seasonDiv;
         const okYear = seasonYear === "All" || r.Season_year === seasonYear;
-        return okDiv && okYear;
+        return  okYear;
       }),
-    [rows, seasonDiv, seasonYear]
+    [rows, seasonYear]
   );
 
   const agg = useMemo(() => {
