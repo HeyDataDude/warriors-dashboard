@@ -4,9 +4,7 @@ A fast, responsive dashboard for Warriors fans. It pulls real team/player data f
 
 🚀 Live Demo & Repo
 
-        Live Demo: add your deployed URL here (e.g., Vercel/Netlify)
-
-        Repository: add your GitHub repo URL here
+        Repository: https://github.com/HeyDataDude/warriors-dashboard
 
 ✨ Highlights
 
@@ -91,7 +89,7 @@ A fast, responsive dashboard for Warriors fans. It pulls real team/player data f
 
 🔌 Data Sources (TheSportsDB)
 
-        Team Info: lookupteam.php?id=134865
+        Team Info: lookupteam.php?id=134865 , (This doesnt give Golden State Warriors data so I had to work around)
 
         Players: lookup_all_players.php?id=134865
 
