@@ -1,6 +1,5 @@
-// src/api.ts
 import axios from "axios";
-import type { Team, Player, Event } from "./types";
+import type { Player, Event } from "./types";
 
 // ==================== CONFIG ====================
 const BASE_URL =

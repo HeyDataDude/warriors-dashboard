@@ -23,8 +23,6 @@ export default function HeroShowcase({
   kicker,
   title,
   subtitle,
-  ctaPrimary,
-  ctaSecondary,
   roundedBottom = true,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
