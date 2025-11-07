@@ -173,12 +173,12 @@ export default function HeroShowcase({
         aria-hidden="true"
       />
 
-      {/* Championship banners (purely visual flourish) */}
+      {/* Championship banners  */}
       <ChampionshipBanners
         items={[
-          { year: 1947, note: "BAA" },
-          { year: 1956, note: "NBA" },
-          { year: 1975, note: "NBA" },
+          { year: 1947, note: "4–1 CHI (BAA)" },
+          { year: 1956, note: "4–1 FTW" },
+          { year: 1975, note: "4–0 WSB" },
           { year: 2015, note: "4–2 CLE" },
           { year: 2017, note: "4–1 CLE" },
           { year: 2018, note: "4–0 CLE" },

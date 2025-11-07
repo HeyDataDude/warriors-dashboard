@@ -17,15 +17,7 @@ const W_GOLD = "#FFC72C";
 
 /** Mount inside the hero <section> (position: relative). */
 export default function ChampionshipBannersFlip({
-  items = [
-    { year: 1947, note: "BAA" },
-    { year: 1956, note: "NBA" },
-    { year: 1975, note: "NBA" },
-    { year: 2015, note: "4–2 CLE" },
-    { year: 2017, note: "4–1 CLE" },
-    { year: 2018, note: "4–0 CLE" },
-    { year: 2022, note: "4–2 BOS" },
-  ],
+  items = [   ],
   offsetRightPx = 20,
   offsetTopPx = 0,
   width = 96,
