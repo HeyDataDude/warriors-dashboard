@@ -1,30 +1,33 @@
 // src/App.tsx
+import HeroShowcase from "./components/HeroShowcase";
+import RecentGames from "./components/RecentGames";
+import Roster from "./components/Roster";
 import Shell from "./components/Shell";
 import TeamHero from "./components/TeamHero";
-import Roster from "./components/Roster";
-import RecentGames from "./components/RecentGames";
 import { Loader, ErrorState } from "./components/States";
 import { useAsync } from "./hooks";
-import {  getPlayers, getRecentEvents } from "./api";
-import HeroShowcase from "./components/HeroShowcase";
+import { getPlayers, getRecentEvents } from "./api";
 import heroImage from "./assets/2.webp";
-
 
 function SectionHeader({
   id,
   title,
   subtitle,
   right,
+  headingId, 
 }: {
   id: string;
   title: string;
   subtitle?: string;
   right?: React.ReactNode;
+  headingId?: string;
 }) {
+  const hId = headingId ?? `${id}-heading`;
   return (
     <div id={id} className="scroll-mt-24 flex items-end justify-between gap-4">
       <div className="min-w-0">
         <h2
+          id={hId}
           className="truncate"
           style={{
             fontFamily: "Bebas Neue, Montserrat, sans-serif",
@@ -48,8 +51,8 @@ export default function App() {
   const players = useAsync(getPlayers, []);
   const games = useAsync(getRecentEvents, []);
 
-  const loading =  players.loading || games.loading;
-  const error =  players.error || games.error;
+  const loading = players.loading || games.loading;
+  const error = players.error || games.error;
 
   return (
     <Shell>
@@ -58,7 +61,7 @@ export default function App() {
 
       {!loading && !error && (
         <>
-          {/* FULL-BLEED HERO (sits flush beneath the navbar) */}
+          {/* Full-bleed hero */}
           <HeroShowcase
             imageUrl={heroImage}
             kicker="2025 Season"
@@ -66,18 +69,14 @@ export default function App() {
             subtitle="Strength in Numbers"
             ctaPrimary={{ label: "View Recent Games", href: "#games" }}
             ctaSecondary={{ label: "Browse Roster", href: "#roster" }}
-            // roundedBottom={false} // uncomment for a straight bottom edge
           />
 
-          {/* CONSTRAINED CONTENT */}
+          {/* Recent Game Content */}
           <div className="max-w-7xl mx-auto px-5 space-y-10 md:space-y-12">
-            {/* Team hero (keeps its own id="team" internally) */}
-            
-
-            {/* Recent Games ABOVE Roster */}
-            <section aria-labelledby="recent-games-heading" className="space-y-4">
+            <section id="games" aria-labelledby="games-heading" className="space-y-4">
               <SectionHeader
                 id="games"
+                headingId="games-heading"
                 title="Recent Games"
                 subtitle="Latest results and momentum snapshot"
                 right={
@@ -93,9 +92,10 @@ export default function App() {
             </section>
 
             {/* Roster */}
-            <section aria-labelledby="roster-heading" className="space-y-4">
+            <section id="roster" aria-labelledby="roster-heading" className="space-y-4">
               <SectionHeader
                 id="roster"
+                headingId="roster-heading"
                 title="Roster"
                 subtitle="Players, roles, and availability"
                 right={
@@ -108,10 +108,7 @@ export default function App() {
                 }
               />
               <Roster players={players.data || []} />
-              <div className="space-y-6">
-
-    </div>
-              <TeamHero  />
+              <TeamHero />
             </section>
           </div>
         </>

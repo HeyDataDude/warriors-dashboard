@@ -5,8 +5,6 @@ Displays **team info**, **player roster**, and **recent game results** with clea
 
 ---
 
-## 🚀 Live Demo
-[🔗 View Deployed App](https://your-vercel-link-here.vercel.app)
 
 ---
 

@@ -1,23 +1,21 @@
-// src/components/Card.tsx
 import { ReactNode, HTMLAttributes } from "react";
 
-/* --- Theme colors --- */
+/** Brand accents */
 const W_BLUE = "#1D428A";
 const W_GOLD = "#FFC72C";
 
-/* ---------- Card ---------- */
-
+/** Visual container with optional glass/solid/tonal styles and a top accent */
 type CardProps = {
   children: ReactNode;
-  /** "glass" (default), "solid", or "tonal" */
+  /** Visual surface style (default: glass) */
   variant?: "glass" | "solid" | "tonal";
-  /** Adds subtle lift + glow on hover/focus */
+  /** Subtle lift + ring on hover/focus */
   interactive?: boolean;
-  /** Optional accent stripe at the top edge */
+  /** Thin top stripe accent */
   accent?: "none" | "gold" | "blue";
   /** Content padding scale */
   padding?: "none" | "sm" | "md" | "lg";
-  /** Extra classes */
+  /** Extra utility classes */
   className?: string;
 } & HTMLAttributes<HTMLElement>;
 
@@ -32,6 +30,8 @@ function Card({
 }: CardProps) {
   const base =
     "relative rounded-2xl overflow-hidden backdrop-blur-xl ring-1 ring-inset";
+
+  // Compact padding mapping (no branches elsewhere)
   const pad =
     padding === "none"
       ? ""
@@ -41,6 +41,7 @@ function Card({
       ? "p-6 sm:p-7"
       : "p-4 sm:p-5";
 
+  // Surface variants tuned for depth + subtle ring
   const variantCls =
     variant === "solid"
       ? "bg-[rgba(13,20,34,0.9)] ring-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
@@ -57,9 +58,9 @@ function Card({
       className={`${base} ${variantCls} ${interactiveCls} ${pad} ${className}`}
       {...rest}
     >
-      {/* subtle noise for depth */}
+      {/* Subtle noise texture for depth; decorative only */}
       <div
-        aria-hidden
+        aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
         style={{
           backgroundImage:
@@ -67,10 +68,10 @@ function Card({
         }}
       />
 
-      {/* top accent hairline */}
+      {/* Optional top accent hairline; decorative */}
       {accent !== "none" && (
         <div
-          aria-hidden
+          aria-hidden="true"
           className="absolute top-0 left-0 right-0 h-[3px]"
           style={{
             background:
@@ -86,8 +87,7 @@ function Card({
   );
 }
 
-/* ---------- Card Slots ---------- */
-
+/** Slots keep layout consistent across cards */
 function CardHeader({
   children,
   className = "",
@@ -124,6 +124,7 @@ type SectionTitleProps = {
   className?: string;
 };
 
+/** Section-level title with optional subtitle and right-aligned actions */
 function SectionTitle({
   children,
   subtitle,
@@ -153,7 +154,5 @@ function SectionTitle({
   );
 }
 
-/* ---------- Exports ---------- */
 export default Card;
-
 export { CardHeader, CardBody, CardFooter, SectionTitle };

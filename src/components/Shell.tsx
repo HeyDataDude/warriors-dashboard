@@ -53,7 +53,7 @@ export default function Shell({
         head.removeChild(pre1);
         head.removeChild(pre2);
         head.removeChild(link);
-      } catch {}
+      } catch { }
     };
   }, []);
 
@@ -104,108 +104,108 @@ export default function Shell({
   const W_GOLD = "#FFC72C";
 
   /** ---------- NavLink ---------- **/
-const NavLink = ({ href, children }: { href: string; children: ReactNode }) => (
-  <a
-    href={href}
-    onClick={(e) => {
-      // only handle in-page anchors
-      if (href.startsWith("#")) {
-        e.preventDefault();
-        setMobileOpen(false);
-        smoothScrollToHash(href);
-        // also update the URL hash (no jump because we prevented default)
-        history.pushState(null, "", href);
+  const NavLink = ({ href, children }: { href: string; children: ReactNode }) => (
+    <a
+      href={href}
+      onClick={(e) => {
+        // only handle in-page anchors
+        if (href.startsWith("#")) {
+          e.preventDefault();
+          setMobileOpen(false);
+          smoothScrollToHash(href);
+          // also update the URL hash (no jump because we prevented default)
+          history.pushState(null, "", href);
+        }
+      }}
+      className="group relative text-[13.5px] md:text-sm font-semibold tracking-tight text-white/85 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded"
+      style={{ textShadow: "0 0 10px rgba(255,199,44,0.08)" }}
+    >
+      {children}
+      <span
+        className="absolute -bottom-2 left-0 h-[3px] w-0 transition-all duration-300 ease-out group-hover:w-full"
+        style={{ backgroundColor: W_GOLD }}
+        aria-hidden
+      />
+    </a>
+  );
+
+
+
+  // put this near the top of Shell (inside the component, before return)
+
+  const HEADER_OFFSET_PX = 76; // tweak to match your sticky header height
+
+  function smoothScrollToHash(hash: string) {
+    const id = hash.replace(/^#/, "");
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    const rect = target.getBoundingClientRect();
+    const absoluteTop = window.pageYOffset + rect.top;
+    const top = Math.max(absoluteTop - HEADER_OFFSET_PX, 0);
+
+    window.scrollTo({ top, behavior: reducedMotion ? "auto" : "smooth" });
+
+    // a11y: move focus after the scroll finishes
+    // (timeout = ~scroll duration)
+    setTimeout(() => {
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    }, reducedMotion ? 0 : 420);
+  }
+
+  // Handle: initial load with hash, and future hash changes
+  useEffect(() => {
+    const handleHash = () => {
+      if (location.hash) {
+        // small delay to ensure layout is ready
+        setTimeout(() => smoothScrollToHash(location.hash), 40);
       }
-    }}
-    className="group relative text-[13.5px] md:text-sm font-semibold tracking-tight text-white/85 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded"
-    style={{ textShadow: "0 0 10px rgba(255,199,44,0.08)" }}
-  >
-    {children}
-    <span
-      className="absolute -bottom-2 left-0 h-[3px] w-0 transition-all duration-300 ease-out group-hover:w-full"
-      style={{ backgroundColor: W_GOLD }}
-      aria-hidden
-    />
-  </a>
-);
-
-
-
-// put this near the top of Shell (inside the component, before return)
-
-const HEADER_OFFSET_PX = 76; // tweak to match your sticky header height
-
-function smoothScrollToHash(hash: string) {
-  const id = hash.replace(/^#/, "");
-  const target = document.getElementById(id);
-  if (!target) return;
-
-  const rect = target.getBoundingClientRect();
-  const absoluteTop = window.pageYOffset + rect.top;
-  const top = Math.max(absoluteTop - HEADER_OFFSET_PX, 0);
-
-  window.scrollTo({ top, behavior: reducedMotion ? "auto" : "smooth" });
-
-  // a11y: move focus after the scroll finishes
-  // (timeout = ~scroll duration)
-  setTimeout(() => {
-    target.setAttribute("tabindex", "-1");
-    target.focus({ preventScroll: true });
-  }, reducedMotion ? 0 : 420);
-}
-
-// Handle: initial load with hash, and future hash changes
-useEffect(() => {
-  const handleHash = () => {
-    if (location.hash) {
-      // small delay to ensure layout is ready
-      setTimeout(() => smoothScrollToHash(location.hash), 40);
-    }
-  };
-  handleHash(); // on mount
-  window.addEventListener("hashchange", handleHash);
-  return () => window.removeEventListener("hashchange", handleHash);
-}, [reducedMotion]);
+    };
+    handleHash(); // on mount
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, [reducedMotion]);
 
 
 
   return (
-<div
-  className="min-h-screen text-white overflow-x-hidden"
-  style={{
-    backgroundImage: [
-      /* 1️⃣ Film grain overlay (adds life, removes flatness) */
-      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E\")",
+    <div
+      className="min-h-screen text-white overflow-x-hidden"
+      style={{
+        backgroundImage: [
+          /* 1️⃣ Film grain overlay (adds life, removes flatness) */
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E\")",
 
-      /* 2️⃣ Subtle grid texture (barely visible, adds structure) */
-      "linear-gradient(135deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+          /* 2️⃣ Subtle grid texture (barely visible, adds structure) */
+          "linear-gradient(135deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
 
-      /* 3️⃣ Brand golden glow (upper left) */
-      "radial-gradient(1200px 600px at 8% -10%, rgba(255,199,44,0.08) 0%, transparent 90%)",
+          /* 3️⃣ Brand golden glow (upper left) */
+          "radial-gradient(1200px 600px at 8% -10%, rgba(255,199,44,0.08) 0%, transparent 90%)",
 
-      /* 4️⃣ Royal blue spotlight (upper right) */
-      "radial-gradient(900px 500px at 110% 15%, rgba(0,74,173,0.18) 0%, transparent 60%)",
+          /* 4️⃣ Royal blue spotlight (upper right) */
+          "radial-gradient(900px 500px at 110% 15%, rgba(0,74,173,0.18) 0%, transparent 60%)",
 
-      /* 5️⃣ Ambient cool fade (bottom area) */
-      "radial-gradient(800px 400px at 50% 110%, rgba(18,34,60,0.25) 0%, transparent 70%)",
+          /* 5️⃣ Ambient cool fade (bottom area) */
+          "radial-gradient(800px 400px at 50% 110%, rgba(18,34,60,0.25) 0%, transparent 70%)",
 
-      /* 6️⃣ Deep base gradient (navy to slate black) — this is the foundation */
-      "linear-gradient(180deg, #0A1224 0%, #0B0F1A 40%, #050709 100%)",
-    ].join(", "),
+          /* 6️⃣ Deep base gradient (navy to slate black) — this is the foundation */
+          "linear-gradient(180deg, #0A1224 0%, #0B0F1A 40%, #050709 100%)",
+        ].join(", "),
 
-    backgroundSize: "auto, 24px 24px, auto, auto, auto, auto",
-    backgroundBlendMode: "overlay, soft-light, normal, normal, normal, normal",
+        backgroundSize: "auto, 24px 24px, auto, auto, auto, auto",
+        backgroundBlendMode: "overlay, soft-light, normal, normal, normal, normal",
 
-    /* Optional: a slow vertical parallax shimmer on huge monitors */
-    backgroundAttachment: "fixed",
+        /* Optional: a slow vertical parallax shimmer on huge monitors */
+        backgroundAttachment: "fixed",
 
-    fontFamily:
-      'Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial',
+        fontFamily:
+          'Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial',
 
-    /* Subtle contrast control */
-    colorScheme: "dark",
-  }}
->
+        /* Subtle contrast control */
+        colorScheme: "dark",
+      }}
+    >
 
       {/* Accessibility: skip link */}
       <a
@@ -281,9 +281,10 @@ useEffect(() => {
             {/* Desktop nav */}
             <div className="hidden sm:flex items-center gap-6">
               <nav className="flex items-center gap-6" aria-label="Primary navigation">
-                <NavLink href="#team">Team</NavLink>
                 <NavLink href="#games">Games</NavLink>
                 <NavLink href="#roster">Roster</NavLink>
+                <NavLink href="#team">About</NavLink>
+
               </nav>
 
               {canInstall && (

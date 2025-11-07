@@ -1,5 +1,3 @@
-// src/utils.ts
-
 import { Event } from "./types";
 
 /**
@@ -16,8 +14,8 @@ export function toNumber(value?: string | null): number {
 
 export function transformEvents(events: Event[]) {
   return events
-    .slice(0, 8) // limit to recent 8
-    .reverse() // show oldest → newest order for charts
+    .slice(0, 8) 
+    .reverse() 
     .map((e) => {
       const home = isHomeGame(e);
       const forPts = Number(home ? e.intHomeScore : e.intAwayScore) || 0;

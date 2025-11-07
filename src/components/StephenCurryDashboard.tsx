@@ -368,7 +368,7 @@ export default function StephenCurryDashboard({
         </div>
       </div>
 
-      {/* (Removed Recent Games block per last iteration) */}
+  
     </section>
   );
 }
