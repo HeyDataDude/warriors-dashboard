@@ -68,7 +68,7 @@ function Card({
         }}
       />
 
-      {/* Optional top accent hairline; decorative */}
+      
       {accent !== "none" && (
         <div
           aria-hidden="true"
