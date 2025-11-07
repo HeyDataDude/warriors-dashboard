@@ -232,7 +232,7 @@ export default function Shell({
                 <img
                   src={logoUrl}
                   alt="Golden State Warriors Logo"
-                  className="h-8 w-8 md:h-9 md:w-9 object-contain"
+                  className="h-12 w-12 md:h-11 md:w-11 object-contain"
                   draggable={false}
                 />
               </div>
