@@ -1,4 +1,3 @@
-// src/components/ChampionshipBannersFlip.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type BannerInfo = { year: number; note?: string };
