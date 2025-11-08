@@ -2,11 +2,11 @@ Golden State Warriors — Fan Dashboard
 
 A fast, responsive dashboard for Warriors fans. It pulls real team/player data from TheSportsDB, showcases recent games, a browsable roster, and an optional Stephen Curry mini-analytics panel (CSV-driven).
 
-🚀 Live Demo & Repo
+Live Demo & Repo
 
         Repository: https://github.com/HeyDataDude/warriors-dashboard
 
-✨ Highlights
+Highlights
 
         Clean architecture: clear separation of API, hooks, components, and types.
 
@@ -20,7 +20,7 @@ A fast, responsive dashboard for Warriors fans. It pulls real team/player data f
 
         Error handling: fallbacks and skeleton states.
 
-🧱 Tech Stack
+Tech Stack
 
         Build: Vite + TypeScript + React
 
@@ -32,7 +32,7 @@ A fast, responsive dashboard for Warriors fans. It pulls real team/player data f
 
         CSV parsing (Curry panel): PapaParse
 
-📦 Getting Started
+Getting Started
         # 1) Install
         npm install
 
@@ -51,7 +51,7 @@ A fast, responsive dashboard for Warriors fans. It pulls real team/player data f
 
         You can also run it with the default env (it falls back to TheSportsDB public demo key and Warriors team id).
 
-🔑 Environment Variables
+Environment Variables
 
         A .env file (optional):
 
@@ -63,7 +63,7 @@ A fast, responsive dashboard for Warriors fans. It pulls real team/player data f
 
         VITE_TEAM_ID – team ID (Warriors default: 134865).
 
-📁 Project Structure
+Project Structure
         src/
         api.ts                 # axios calls (players, recent events) + safeFetch helper
         types.ts               # Team, Player, Event interfaces
@@ -87,7 +87,7 @@ A fast, responsive dashboard for Warriors fans. It pulls real team/player data f
         main.tsx               # React entry (Vite)
         assets/                # images and CSV (e.g., curry.csv)
 
-🔌 Data Sources (TheSportsDB)
+Data Sources (TheSportsDB)
 
         Team Info: lookupteam.php?id=134865 , (This doesnt give Golden State Warriors data so I had to work around)
 
